@@ -10,7 +10,6 @@
 
 #include "amount.hpp"
 #include "client_blob.hpp"
-#include "ga_cache.hpp"
 #include "ga_wally.hpp"
 #include "session_impl.hpp"
 #include "signer.hpp"
@@ -21,6 +20,7 @@ using namespace std::literals;
 
 namespace ga {
 namespace sdk {
+    struct cache;
     struct websocketpp_gdk_config;
     struct websocketpp_gdk_tls_config;
     struct tor_controller;
@@ -185,7 +185,7 @@ namespace sdk {
 
     private:
         void reset_cached_session_data(locker_t& locker);
-        void reset_all_session_data();
+        void reset_all_session_data(bool in_dtor);
 
         bool is_connected() const;
         bool reconnect();
@@ -345,7 +345,7 @@ namespace sdk {
 
         std::shared_ptr<tor_controller> m_tor_ctrl;
         std::string m_last_tor_socks5;
-        cache m_cache;
+        std::shared_ptr<cache> m_cache;
         const std::string m_user_agent;
 
         autobahn::wamp_call_options m_wamp_call_options;
