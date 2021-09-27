@@ -3,6 +3,7 @@
 #include "ga_rust.hpp"
 #include "ga_session.hpp"
 #include "logging.hpp"
+#include "transaction_utils.hpp"
 
 namespace ga {
 namespace sdk {
@@ -117,6 +118,18 @@ namespace sdk {
     void session_impl::save_cache()
     {
         // Refers to the ga_session cache at the moment, so a no-op for rust sessions
+    }
+
+    nlohmann::json session_impl::get_transaction_details(const std::string& txhash_hex) const
+    {
+        try {
+            const auto tx = get_raw_transaction_details(txhash_hex);
+            nlohmann::json ret = { { "txhash", txhash_hex } };
+            update_tx_size_info(m_net_params, tx, ret);
+            return ret;
+        } catch (const std::exception&) {
+            throw user_error("Transaction not found");
+        }
     }
 
     session_impl::utxo_cache_value_t session_impl::get_cached_utxos(uint32_t subaccount, uint32_t num_confs) const
